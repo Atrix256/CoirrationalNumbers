@@ -9,7 +9,7 @@
 #include "stb_image_write.h"
 
 #define DETERMINISTIC() true
-#define SHOW_PROGRESS() true
+#define SHOW_PROGRESS() false
 
 static const double c_pi =          3.14159265359;
 static const double c_goldenRatio = 1.61803398875;
@@ -42,7 +42,7 @@ std::mt19937 GetRNG()
 
 typedef std::vector<int> ContinuedFraction;
 
-ContinuedFraction ToContinuedFraction(double f, int maxContinuedFractionTerms = 20)
+ContinuedFraction ToContinuedFraction(double f, int maxContinuedFractionTerms = 15)
 {
     ContinuedFraction continuedFraction;
 
@@ -134,7 +134,7 @@ double ToDouble(const ContinuedFraction& continuedFraction)
     return double(n_0) / double(d_0);
 }
 
-void PrintContinuedFraction(double f, const char* label = nullptr, int maxContinuedFractionTerms = 20)
+void PrintContinuedFraction(double f, const char* label = nullptr, int maxContinuedFractionTerms = 15)
 {
     ContinuedFraction cf = ToContinuedFraction(f, maxContinuedFractionTerms);
     if (label)
@@ -511,7 +511,7 @@ std::vector<double> FindCoIrrationals(const std::vector<double>& fixed, size_t n
     // TODO: maybe keep track of best score seen?
     // TODO: could try gradient descent. could also try simulated annealing.
     // TODO: report maximum irrationality? how do yo udo that? maybe csv to graph this somehow...
-    static const size_t c_stepCount = 10;
+    static const size_t c_stepCount = 100000;
     static const float c_slotIndexWeightingMultiplier = 10.0f;
 
 #if SHOW_PROGRESS()
@@ -663,6 +663,33 @@ std::vector<double> FindCoIrrationals(const std::vector<double>& fixed, size_t n
     }
 }
 
+void ReportCoIrrationals(const std::vector<double>& fixed, const std::vector<double>& dynamic)
+{
+    printf("fixed:\n");
+    for (double d : fixed)
+        printf("  %f\n", d);
+
+    printf("found:\n");
+    for (double d : dynamic)
+        printf("  %f\n", d);
+
+    for (size_t i = 0; i < fixed.size() + dynamic.size() - 1; ++i)
+    {
+        double A = (i < fixed.size()) ? fixed[i] : dynamic[i - fixed.size()];
+        for (size_t j = i + 1; j < fixed.size() + dynamic.size(); ++j)
+        {
+            double B = (j < fixed.size()) ? fixed[j] : dynamic[j - fixed.size()];
+
+            double ratio = (A > B) ? B / A: A / B;
+            printf("[%zu to %zu] %f to %f = %f\n", i, j, A, B, ratio);
+            PrintContinuedFraction(ratio);
+        }
+    }
+
+
+    printf("\n");
+}
+
 int main(int argc, char** argv)
 {
 
@@ -686,31 +713,19 @@ int main(int argc, char** argv)
         std::vector<double> fixedValues = { 1.0 };
         std::vector<double> coirrationals = FindCoIrrationals(fixedValues, 1);
 
-        printf("fixed:\n");
-        for (double d : fixedValues)
-            printf("  %f\n", d);
-
-        printf("found:\n");
-        for (double d : coirrationals)
-            printf("  %f\n", d);
+        ReportCoIrrationals(fixedValues, coirrationals);
 
         // TODO: numberline?
         //Test("test_1", 64, (float)coirrationals[0]);
     }
 
     // find 2 values that are coirrational with each other and also 1.0
-    if (false)
+    if (true)
     {
         std::vector<double> fixedValues = { 1.0 };
         std::vector<double> coirrationals = FindCoIrrationals(fixedValues, 2);
 
-        printf("fixed:\n");
-        for (double d : fixedValues)
-            printf("  %f\n", d);
-
-        printf("found:\n");
-        for (double d : coirrationals)
-            printf("  %f\n", d);
+        ReportCoIrrationals(fixedValues, coirrationals);
 
         Test2D("test_1_2", 64, (float)coirrationals[0], (float)coirrationals[1]);
     }
@@ -748,7 +763,7 @@ int main(int argc, char** argv)
 
 /*
 
-! numbers don't seem to be surviving round trip going to continued fraction and back. need to figure out why.
+! try an alternate algorithm: randomly pick a pair of numbers A or B. divide and make a CF. randomly cut one term in half. apply changes to A or B randomly.
 
 
 ! make sure it can find the golden ratio from 1 static, 1 dynamic, before moving on.
