@@ -511,7 +511,7 @@ std::vector<double> FindCoIrrationals(const std::vector<double>& fixed, size_t n
     // TODO: maybe keep track of best score seen?
     // TODO: could try gradient descent. could also try simulated annealing.
     // TODO: report maximum irrationality? how do yo udo that? maybe csv to graph this somehow...
-    static const size_t c_stepCount = 100000;
+    static const size_t c_stepCount = 10000000;
     static const float c_slotIndexWeightingMultiplier = 10.0f;
 
 #if SHOW_PROGRESS()
@@ -765,6 +765,7 @@ int main(int argc, char** argv)
 
 ! try an alternate algorithm: randomly pick a pair of numbers A or B. divide and make a CF. randomly cut one term in half. apply changes to A or B randomly.
 
+* the numbers really don't look great for 2d LDS... is it doing it correctly??
 
 ! make sure it can find the golden ratio from 1 static, 1 dynamic, before moving on.
 
