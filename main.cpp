@@ -122,7 +122,7 @@ double ToDouble(const ContinuedFraction& continuedFraction)
     for (size_t i = 1; i < continuedFraction.size(); ++i)
     {
         int n = continuedFraction[i] * n_0 + n_1;
-        int d = continuedFraction[i] * d_0 + n_0;
+        int d = continuedFraction[i] * d_0 + d_1;
 
         n_1 = n_0;
         d_1 = d_0;
@@ -666,6 +666,15 @@ std::vector<double> FindCoIrrationals(const std::vector<double>& fixed, size_t n
 int main(int argc, char** argv)
 {
 
+    // test number round trips
+    if (false)
+    {
+        double value = 3.14;
+        ContinuedFraction cf = ToContinuedFraction(value);
+        double valueRT = ToDouble(cf);
+        int ijkl = 0;
+    }
+
     //PrintContinuedFraction(c_pi, "pi");
     //PrintContinuedFraction(c_pi / c_goldenRatio, "pi/gr");
 
@@ -743,6 +752,8 @@ int main(int argc, char** argv)
 
 
 ! make sure it can find the golden ratio from 1 static, 1 dynamic, before moving on.
+
+* to visualize progress, could show these on a numberline (how many samples?) in different colors and make an animated gif of them becoming co-irrational
 
 TODO:
 * try doing just 1 dynamic 1 static. dynamic should become golden ratio if it's working right.
