@@ -511,7 +511,7 @@ std::vector<double> FindCoIrrationals(const std::vector<double>& fixed, size_t n
     // TODO: maybe keep track of best score seen?
     // TODO: could try gradient descent. could also try simulated annealing.
     // TODO: report maximum irrationality? how do yo udo that? maybe csv to graph this somehow...
-    static const size_t c_stepCount = 100000;
+    static const size_t c_stepCount = 1000000;
     static const float c_slotIndexWeightingMultiplier = 10.0f;
 
 #if SHOW_PROGRESS()
@@ -665,13 +665,19 @@ std::vector<double> FindCoIrrationals(const std::vector<double>& fixed, size_t n
 
 void ReportCoIrrationals(const std::vector<double>& fixed, const std::vector<double>& dynamic)
 {
-    printf("fixed:\n");
-    for (double d : fixed)
-        printf("  %f\n", d);
+    if (fixed.size() > 0)
+    {
+        printf("fixed:\n");
+        for (double d : fixed)
+            printf("  %f\n", d);
+    }
 
-    printf("found:\n");
-    for (double d : dynamic)
-        printf("  %f\n", d);
+    if (dynamic.size() > 0)
+    {
+        printf("found:\n");
+        for (double d : dynamic)
+            printf("  %f\n", d);
+    }
 
     for (size_t i = 0; i < fixed.size() + dynamic.size() - 1; ++i)
     {
@@ -686,13 +692,12 @@ void ReportCoIrrationals(const std::vector<double>& fixed, const std::vector<dou
         }
     }
 
-
     printf("\n");
 }
 
 int main(int argc, char** argv)
 {
-
+#if 0
     // test number round trips
     if (false)
     {
@@ -700,6 +705,28 @@ int main(int argc, char** argv)
         ContinuedFraction cf = ToContinuedFraction(value);
         double valueRT = ToDouble(cf);
         int ijkl = 0;
+    }
+
+    // show how co-irrational R2 values are
+    // TODO: r3 and beyond?
+    {
+        // generalized golden ratio "R2", from:
+        // http://extremelearning.com.au/unreasonable-effectiveness-of-quasirandom-sequences/
+        const float g = 1.32471795724474602596f;
+        const float a1 = 1.0f / g;
+        const float a2 = 1.0f / (g * g);
+
+        std::vector<double> fixedValues = { 1.0, a1, a2 };
+        std::vector<double> coirrationals;
+        ReportCoIrrationals(fixedValues, coirrationals);
+        system("pause");
+    }
+
+    {
+        std::vector<double> fixedValues = { 1.0, c_goldenRatioConjugate, c_goldenRatioConjugate * c_goldenRatioConjugate };
+        std::vector<double> coirrationals;
+        ReportCoIrrationals(fixedValues, coirrationals);
+        system("pause");
     }
 
     //PrintContinuedFraction(c_pi, "pi");
@@ -731,6 +758,7 @@ int main(int argc, char** argv)
         // TODO: numberline?
         //Test("test_1", 64, (float)coirrationals[0]);
     }
+#endif
 
     // find 2 values that are coirrational with each other and also 1.0
     if (true)
